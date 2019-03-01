@@ -12,5 +12,9 @@
         "google/apiclient": "^2.2",
         "vlucas/phpdotenv": "^3.3"
     },
-    "autoload":{}
+    "autoload":{
+        "psr-4": {
+        "FlySkyPie\\CloudCatapult\\": "src/"
+        }
+    }
 }

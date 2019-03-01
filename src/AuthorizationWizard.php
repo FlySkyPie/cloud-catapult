@@ -1,6 +1,9 @@
 <?php
 namespace FlySkyPie\CloudCatapult;
 
+use Google_Client;
+use Google_Service_Drive;
+
 class AuthorizationWizard
 {
   function __construct( ) 
@@ -12,7 +15,7 @@ class AuthorizationWizard
   
   public function start()
   {
-    $credential_path = env('OAUTH_CREDENTIALS_PATH')."/credentials.json";
+    $credential_path = getenv('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
     $client = new Google_Client();
     $client->setApplicationName('Cloud Catapult');
@@ -24,11 +27,10 @@ class AuthorizationWizard
     $this->getToken($client);
   }
   
-  
   private function getToken( $client )
   {
     // Load previously authorized token from a file, if it exists.
-    $token_path =   env('OAUTH_TOKEN_PATH')."/token.json";
+    $token_path =   getenv('OAUTH_TOKEN_PATH')."/token.json";
     if ( file_exists($token_path) ) {
       $accessToken = json_decode(file_get_contents($token_path), true);
       $client->setAccessToken($accessToken);
@@ -66,8 +68,6 @@ class AuthorizationWizard
     if (array_key_exists('error', $accessToken)) {
       throw new Exception(join(', ', $accessToken));
     }
-    
-
   }
   
   /*

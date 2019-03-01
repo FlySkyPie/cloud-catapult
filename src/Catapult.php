@@ -10,7 +10,7 @@ class Catapult
   function __construct( ) 
   {
     $this->GoogleClient =  $this->getGoogleClient();
-    $this->GoogleService = new Google_Service_Drive( $this->GoogleClient );
+    $this->GoogleService = new \Google_Service_Drive( $this->GoogleClient );
     $this->TargetFolderId =  env('CLOUD_TARGET_ID');
   }
   
@@ -23,7 +23,7 @@ class Catapult
     $credential_path = env('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
     //create google client object
-    $client = new Google_Client();
+    $client = new \Google_Client();
     $client->setApplicationName('Grive Backup');
     $client->setScopes(Google_Service_Drive::DRIVE);
     $client->setAuthConfig( $credential_path );
@@ -39,7 +39,7 @@ class Catapult
    * @todo check and get token for Google_Client
    * @param Google_Client $client
    */
-  function getGoogleToken( $client )
+  private function getGoogleToken( $client )
   {
     $token_path =   env('OAUTH_TOKEN_PATH')."/token.json";
     
@@ -79,16 +79,14 @@ class Catapult
     
     return $result->id;
   }
-
   
   private function shareFile( $FileId )
   {
     try {
-      $newPermission = new Google_Service_Drive_Permission([
-           'type' => 'anyone',
-           'role' => 'reader'
-       ]);
-
+      $newPermission = new Google_Service_Drive_Permission();
+      $newPermission->setValue(null);
+      $newPermission->setType('anyone');
+      $newPermission->setRole('reader');
       $this->GoogleService->permissions->create( $FileId, $newPermission );
 
     }catch (Exception $e) {
