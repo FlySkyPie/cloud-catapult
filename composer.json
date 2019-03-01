@@ -1,0 +1,16 @@
+{
+    "name": "flyskypie/cloud-catapult",
+    "type": "project",
+    "authors": [
+      {
+          "name": "FlySkyPie",
+          "email": "c445dj544@gmail.com"
+      }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "google/apiclient": "^2.2",
+        "vlucas/phpdotenv": "^3.3"
+    },
+    "autoload":{}
+}
