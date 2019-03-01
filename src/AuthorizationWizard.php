@@ -15,7 +15,7 @@ class AuthorizationWizard
     $credential_path = env('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
     $client = new Google_Client();
-    $client->setApplicationName('Grive Backup');
+    $client->setApplicationName('Cloud Catapult');
     $client->setScopes(Google_Service_Drive::DRIVE);
     $client->setAuthConfig( $credential_path );
     $client->setAccessType('offline');

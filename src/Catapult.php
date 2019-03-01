@@ -62,18 +62,37 @@ class Catapult
   }
   
   /*
-   * @todo uplode a file to the cloud
+   * @todo upload a file to the cloud
    * @param String $File
    * @var String
    */
-  function upload( $File )
+  public function shoot( $File )
   {
-    $file = new Google_Service_Drive_DriveFile();
+    $DriveFile = new Google_Service_Drive_DriveFile();
     $query = ['data' => $File,
       'mimeType' => 'application/octet-stream',
       'uploadType' => 'media'
       ];
-    $result =  $this->GoogleService->files->insert( $file, $query );
+    $result =  $this->GoogleService->files->create( $DriveFile, $query );
+
+    $this->shareFile( $result->id );
+    
     return $result->id;
+  }
+
+  
+  private function shareFile( $FileId )
+  {
+    try {
+      $newPermission = new Google_Service_Drive_Permission([
+           'type' => 'anyone',
+           'role' => 'reader'
+       ]);
+
+      $this->GoogleService->permissions->create( $FileId, $newPermission );
+
+    }catch (Exception $e) {
+      throw new Exception($e->getMessage());
+    }
   }
 }
