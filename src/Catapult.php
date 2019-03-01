@@ -45,7 +45,7 @@ class Catapult
     
     //check token file exists
     if(!file_exists($token_path)){
-        throw new Exception("The token was expired.");
+        throw new Exception("The token file do not exists.");
     }
     $accessToken = json_decode(file_get_contents($token_path), true);
     $client->setAccessToken($accessToken);
@@ -69,11 +69,11 @@ class Catapult
   function upload( $File )
   {
     $file = new Google_Service_Drive_DriveFile();
-    $result =  $this->GoogleService->files->insert($file, array(
-      'data' => $File,
+    $query = ['data' => $File,
       'mimeType' => 'application/octet-stream',
       'uploadType' => 'media'
-    ));
+      ];
+    $result =  $this->GoogleService->files->insert( $file, $query );
     return $result->id;
   }
 }
