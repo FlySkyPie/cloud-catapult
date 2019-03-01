@@ -13,7 +13,7 @@ class AuthorizationWizard
     }
   }
   
-  public function start()
+  public static function start()
   {
     $credential_path = getenv('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
@@ -24,7 +24,7 @@ class AuthorizationWizard
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');
 
-    $this->getToken($client);
+    self::getToken($client);
   }
   
   private function getToken( $client )
@@ -45,9 +45,9 @@ class AuthorizationWizard
     if ($client->getRefreshToken()) {
       $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
     } else {
-      $this->requestNewToken($client);
+      self::requestNewToken($client);
     }
-    $this->saveToken($client->getAccessToken(),$token_path);
+    self::saveToken($client->getAccessToken(),$token_path);
   }
   
   /*

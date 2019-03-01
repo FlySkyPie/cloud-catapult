@@ -1,6 +1,11 @@
 <?php
 namespace FlySkyPie\CloudCatapult;
 
+use Google_Client;
+use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
+use Google_Service_Drive_Permission;
+
 class Catapult
 {
   private $GoogleClient;
@@ -10,7 +15,7 @@ class Catapult
   function __construct( ) 
   {
     $this->GoogleClient =  $this->getGoogleClient();
-    $this->GoogleService = new \Google_Service_Drive( $this->GoogleClient );
+    $this->GoogleService = new Google_Service_Drive( $this->GoogleClient );
     $this->TargetFolderId =  env('CLOUD_TARGET_ID');
   }
   
@@ -23,7 +28,7 @@ class Catapult
     $credential_path = env('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
     //create google client object
-    $client = new \Google_Client();
+    $client = new Google_Client();
     $client->setApplicationName('Grive Backup');
     $client->setScopes(Google_Service_Drive::DRIVE);
     $client->setAuthConfig( $credential_path );
