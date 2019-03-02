@@ -67,23 +67,32 @@ class Catapult {
 
   /*
    * @todo upload a file to the cloud
-   * @param String $File
+   * @param Array $FileINFO
    * @var String
    */
 
-  public function shoot($FileName, $FilePath) {
+  public function shoot($FileINFO) {
+    $errors = array();
+    $file_name = $FileINFO['name'];
+    $file_size = $FileINFO['size'];
+    $file_tmp = $FileINFO['tmp_name'];
+    $file_type = $FileINFO['type'];
+
+    //There are not file been selected or file are empty.
+    if ($file_size === 0) {
+      return "";
+    }
+
     $TargetFolderId = getenv('CLOUD_TARGET_ID');
     $DriveFile = new Google_Service_Drive_DriveFile();
-    $DriveFile->setName($FileName);
+    $DriveFile->setName($file_name);
     $DriveFile->setParents([$TargetFolderId]);
-    $query = ['data' => file_get_contents($FilePath),
+    $query = ['data' => file_get_contents($file_tmp),
         'mimeType' => 'application/octet-stream',
         'uploadType' => 'media'
     ];
     $result = $this->GoogleService->files->create($DriveFile, $query);
-
     $this->shareFile($result->id);
-
     return $result->id;
   }
 
