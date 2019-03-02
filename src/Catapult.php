@@ -71,11 +71,11 @@ class Catapult {
    * @var String
    */
 
-  public function shoot($File) {
+  public function shoot($FilePath) {
     $TargetFolderId = getenv('CLOUD_TARGET_ID');
     $DriveFile = new Google_Service_Drive_DriveFile();
     $DriveFile->setParents([$TargetFolderId]);
-    $query = ['data' => $File,
+    $query = ['data' => file_get_contents($FilePath),
         'mimeType' => 'application/octet-stream',
         'uploadType' => 'media'
     ];
