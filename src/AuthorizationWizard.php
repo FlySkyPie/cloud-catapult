@@ -46,7 +46,7 @@ class AuthorizationWizard {
         'name' => 'Cloud Catapult Target',
         'mimeType' => 'application/vnd.google-apps.folder']);
     $file = $GoogleService->files->create($FileMetadata, ['fields' => 'id']);
-    putenv('CLOUD_TARGET_ID=' . $file->id);
+    printf("please copy the line under below to .env :\n%s\n", 'CLOUD_TARGET_ID="' . $file->id . '"');
   }
 
   /*
