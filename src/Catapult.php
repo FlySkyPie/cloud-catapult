@@ -71,9 +71,10 @@ class Catapult {
    * @var String
    */
 
-  public function shoot($FilePath) {
+  public function shoot($FileName, $FilePath) {
     $TargetFolderId = getenv('CLOUD_TARGET_ID');
     $DriveFile = new Google_Service_Drive_DriveFile();
+    $DriveFile->setName($FileName);
     $DriveFile->setParents([$TargetFolderId]);
     $query = ['data' => file_get_contents($FilePath),
         'mimeType' => 'application/octet-stream',
@@ -89,7 +90,6 @@ class Catapult {
   private function shareFile($FileId) {
     try {
       $newPermission = new Google_Service_Drive_Permission();
-      $newPermission->setValue(null);
       $newPermission->setType('anyone');
       $newPermission->setRole('reader');
       $this->GoogleService->permissions->create($FileId, $newPermission);
