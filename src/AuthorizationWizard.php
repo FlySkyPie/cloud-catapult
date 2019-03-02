@@ -3,6 +3,7 @@ namespace FlySkyPie\CloudCatapult;
 
 use Google_Client;
 use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
 
 class AuthorizationWizard
 {
@@ -19,12 +20,24 @@ class AuthorizationWizard
 
     $client = new Google_Client();
     $client->setApplicationName('Cloud Catapult');
-    $client->setScopes(Google_Service_Drive::DRIVE);
+    $client->setScopes(Google_Service_Drive::DRIVE_FILE);
     $client->setAuthConfig( $credential_path );
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');
 
     self::getToken($client);
+    
+    self::createRootFolder($client);
+  }
+  
+  private function createRootFolder( $client )
+  {
+    $service = new Google_Service_Drive( $client );
+    $fileMetadata = new Google_Service_Drive_DriveFile([
+      'name' => 'Cloud Catapult Target',
+      'mimeType' => 'application/vnd.google-apps.folder']);
+    $file = $service->files->create($fileMetadata,['fields' => 'id']);
+    printf("Folder ID: %s\n", $file->id);
   }
   
   private function getToken( $client )

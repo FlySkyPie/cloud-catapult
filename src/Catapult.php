@@ -16,7 +16,7 @@ class Catapult
   {
     $this->GoogleClient =  $this->getGoogleClient();
     $this->GoogleService = new Google_Service_Drive( $this->GoogleClient );
-    $this->TargetFolderId =  env('CLOUD_TARGET_ID');
+    $this->TargetFolderId =  getenv('CLOUD_TARGET_ID');
   }
   
   /*
@@ -25,12 +25,12 @@ class Catapult
    */
   private function getGoogleClient()
   {
-    $credential_path = env('OAUTH_CREDENTIALS_PATH')."/credentials.json";
+    $credential_path = getenv('OAUTH_CREDENTIALS_PATH')."/credentials.json";
 
     //create google client object
     $client = new Google_Client();
     $client->setApplicationName('Grive Backup');
-    $client->setScopes(Google_Service_Drive::DRIVE);
+    $client->setScopes(Google_Service_Drive::DRIVE_FILE);
     $client->setAuthConfig( $credential_path );
     $client->setAccessType('offline');
     $client->setPrompt('select_account consent');
@@ -46,7 +46,7 @@ class Catapult
    */
   private function getGoogleToken( $client )
   {
-    $token_path =   env('OAUTH_TOKEN_PATH')."/token.json";
+    $token_path =   getenv('OAUTH_TOKEN_PATH')."/token.json";
     
     //check token file exists
     if(!file_exists($token_path)){
@@ -73,7 +73,9 @@ class Catapult
    */
   public function shoot( $File )
   {
+    $TargetFolderId = getenv('CLOUD_TARGET_ID');
     $DriveFile = new Google_Service_Drive_DriveFile();
+    $DriveFile->setParents([ $TargetFolderId ]);
     $query = ['data' => $File,
       'mimeType' => 'application/octet-stream',
       'uploadType' => 'media'
