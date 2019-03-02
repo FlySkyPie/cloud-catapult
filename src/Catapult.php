@@ -25,40 +25,40 @@ class Catapult {
    */
 
   private function getGoogleClient() {
-    $credential_path = getenv('OAUTH_CREDENTIALS_PATH') . "/credentials.json";
+    $CredentialPath = getenv('OAUTH_CREDENTIALS_PATH') . "/credentials.json";
 
     //create google client object
-    $client = new Google_Client();
-    $client->setApplicationName('Grive Backup');
-    $client->setScopes(Google_Service_Drive::DRIVE_FILE);
-    $client->setAuthConfig($credential_path);
-    $client->setAccessType('offline');
-    $client->setPrompt('select_account consent');
+    $Client = new Google_Client();
+    $Client->setApplicationName('Grive Backup');
+    $Client->setScopes(Google_Service_Drive::DRIVE_FILE);
+    $Client->setAuthConfig($CredentialPath);
+    $Client->setAccessType('offline');
+    $Client->setPrompt('select_account consent');
 
-    $this->getGoogleToken($client);
+    $this->getGoogleToken($Client);
 
-    return $client;
+    return $Client;
   }
 
   /*
    * @todo check and get token for Google_Client
-   * @param Google_Client $client
+   * @param Google_Client $Client
    */
 
-  private function getGoogleToken($client) {
-    $token_path = getenv('OAUTH_TOKEN_PATH') . "/token.json";
+  private function getGoogleToken($Client) {
+    $TokenPath = getenv('OAUTH_TOKEN_PATH') . "/token.json";
 
     //check token file exists
-    if (!file_exists($token_path)) {
+    if (!file_exists($TokenPath)) {
       throw new Exception("The token file do not exists.");
     }
-    $accessToken = json_decode(file_get_contents($token_path), true);
-    $client->setAccessToken($accessToken);
+    $AccessToken = json_decode(file_get_contents($TokenPath), true);
+    $Client->setAccessToken($AccessToken);
 
     // If there is no previous token or it's expired.
-    if ($client->isAccessTokenExpired()) {
-      if ($client->getRefreshToken()) {
-        $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+    if ($Client->isAccessTokenExpired()) {
+      if ($Client->getRefreshToken()) {
+        $Client->fetchAccessTokenWithRefreshToken($Client->getRefreshToken());
       } else {
         throw new Exception("The token was expired, and refresh had failed.");
       }
@@ -72,36 +72,38 @@ class Catapult {
    */
 
   public function shoot($FileINFO) {
-    $errors = array();
-    $file_name = $FileINFO['name'];
-    $file_size = $FileINFO['size'];
-    $file_tmp = $FileINFO['tmp_name'];
-    $file_type = $FileINFO['type'];
+    $FileName = $FileINFO['name'];
+    $FileSize = $FileINFO['size'];
+    $FilePath = $FileINFO['tmp_name'];
 
     //There are not file been selected or file are empty.
-    if ($file_size === 0) {
+    if ($FileSize === 0) {
       return "";
     }
 
-    $TargetFolderId = getenv('CLOUD_TARGET_ID');
     $DriveFile = new Google_Service_Drive_DriveFile();
-    $DriveFile->setName($file_name);
-    $DriveFile->setParents([$TargetFolderId]);
-    $query = ['data' => file_get_contents($file_tmp),
+    $DriveFile->setName($FileName);
+    $DriveFile->setParents([$this->TargetFolderId]);
+    $Query = ['data' => file_get_contents($FilePath),
         'mimeType' => 'application/octet-stream',
         'uploadType' => 'media'
     ];
-    $result = $this->GoogleService->files->create($DriveFile, $query);
-    $this->shareFile($result->id);
-    return $result->id;
+    $Result = $this->GoogleService->files->create($DriveFile, $Query);
+    $this->shareFile($Result->id);
+    return $Result->id;
   }
+
+  /*
+   * @todo set file permission to public read only
+   * @param String $FileId
+   */
 
   private function shareFile($FileId) {
     try {
-      $newPermission = new Google_Service_Drive_Permission();
-      $newPermission->setType('anyone');
-      $newPermission->setRole('reader');
-      $this->GoogleService->permissions->create($FileId, $newPermission);
+      $NewPermission = new Google_Service_Drive_Permission();
+      $NewPermission->setType('anyone');
+      $NewPermission->setRole('reader');
+      $this->GoogleService->permissions->create($FileId, $NewPermission);
     } catch (Exception $e) {
       throw new Exception($e->getMessage());
     }

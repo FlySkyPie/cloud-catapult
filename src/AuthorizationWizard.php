@@ -14,72 +14,86 @@ class AuthorizationWizard {
     }
   }
 
+  /*
+   * @todo start the wizard that get authorization from Google
+   */
+
   public static function start() {
-    $credential_path = getenv('OAUTH_CREDENTIALS_PATH') . "/credentials.json";
+    $CredentialPath = getenv('OAUTH_CREDENTIALS_PATH') . "/credentials.json";
 
-    $client = new Google_Client();
-    $client->setApplicationName('Cloud Catapult');
-    $client->setScopes(Google_Service_Drive::DRIVE_FILE);
-    $client->setAuthConfig($credential_path);
-    $client->setAccessType('offline');
-    $client->setPrompt('select_account consent');
+    $Client = new Google_Client();
+    $Client->setApplicationName('Cloud Catapult');
+    $Client->setScopes(Google_Service_Drive::DRIVE_FILE);
+    $Client->setAuthConfig($CredentialPath);
+    $Client->setAccessType('offline');
+    $Client->setPrompt('select_account consent');
 
-    self::getToken($client);
+    self::getToken($Client);
 
     if (empty(getenv('CLOUD_TARGET_ID'))) {
-      self::createRootFolder($client);
+      self::createRootFolder($Client);
     }
   }
 
-  private function createRootFolder($client) {
-    $service = new Google_Service_Drive($client);
-    $fileMetadata = new Google_Service_Drive_DriveFile([
+  /*
+   * @todo create a folder as catapult target
+   * @param Google_Client $Client
+   */
+
+  private function createRootFolder($Client) {
+    $GoogleService = new Google_Service_Drive($Client);
+    $FileMetadata = new Google_Service_Drive_DriveFile([
         'name' => 'Cloud Catapult Target',
         'mimeType' => 'application/vnd.google-apps.folder']);
-    $file = $service->files->create($fileMetadata, ['fields' => 'id']);
+    $file = $GoogleService->files->create($FileMetadata, ['fields' => 'id']);
     putenv('CLOUD_TARGET_ID=' . $file->id);
-    printf("Folder ID: %s\n", $file->id);
   }
 
-  private function getToken($client) {
+  /*
+   * @todo get authorization token from Google
+   * @param Google_Client $Client
+   */
+
+  private function getToken($Client) {
     // Load previously authorized token from a file, if it exists.
-    $token_path = getenv('OAUTH_TOKEN_PATH') . "/token.json";
-    if (file_exists($token_path)) {
-      $accessToken = json_decode(file_get_contents($token_path), true);
-      $client->setAccessToken($accessToken);
+    $TokenPath = getenv('OAUTH_TOKEN_PATH') . "/token.json";
+    if (file_exists($TokenPath)) {
+      $AccessToken = json_decode(file_get_contents($TokenPath), true);
+      $Client->setAccessToken($AccessToken);
     }
 
     // If there is no previous token or it's expired.
-    if (!$client->isAccessTokenExpired()) {
+    if (!$Client->isAccessTokenExpired()) {
       return;
     }
 
     // Refresh the token if possible, else fetch a new one.
-    if ($client->getRefreshToken()) {
-      $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+    if ($Client->getRefreshToken()) {
+      $Client->fetchAccessTokenWithRefreshToken($Client->getRefreshToken());
     } else {
-      self::requestNewToken($client);
+      self::requestNewToken($Client);
     }
-    self::saveToken($client->getAccessToken(), $token_path);
+    self::saveToken($Client->getAccessToken(), $TokenPath);
   }
 
   /*
    * @todo Request authorization from the user.
+   * @param Google_Client $Client
    */
 
-  private function requestNewToken($client) {
-    $authUrl = $client->createAuthUrl();
-    printf("Open the following link in your browser:\n%s\n", $authUrl);
+  private function requestNewToken($Client) {
+    $AuthUrl = $Client->createAuthUrl();
+    printf("Open the following link in your browser:\n%s\n", $AuthUrl);
     print 'Enter verification code: ';
-    $authCode = trim(fgets(STDIN));
+    $AuthCode = trim(fgets(STDIN));
 
     // Exchange authorization code for an access token.
-    $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
-    $client->setAccessToken($accessToken);
+    $AccessToken = $Client->fetchAccessTokenWithAuthCode($AuthCode);
+    $Client->setAccessToken($AccessToken);
 
     // Check to see if there was an error.
-    if (array_key_exists('error', $accessToken)) {
-      throw new Exception(join(', ', $accessToken));
+    if (array_key_exists('error', $AccessToken)) {
+      throw new Exception(join(', ', $AccessToken));
     }
   }
 
