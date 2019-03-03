@@ -12,6 +12,7 @@
         "google/apiclient": "^2.2",
         "vlucas/phpdotenv": "^3.3"
     },
+    "license": "MIT",
     "autoload":{
         "psr-4": {
         "FlySkyPie\\CloudCatapult\\": "src/"
