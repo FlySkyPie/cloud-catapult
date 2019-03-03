@@ -1,6 +1,6 @@
 {
     "name": "flyskypie/cloud-catapult",
-    "type": "project",
+    "type": "library",
     "authors": [
       {
           "name": "FlySkyPie",
